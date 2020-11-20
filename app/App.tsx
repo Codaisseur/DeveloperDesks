@@ -25,7 +25,7 @@ export default function App() {
     <ApiQueryConfigProvider>
       <AppStateProvider>
         <View style={styles.container}>
-          <StatusBar style='auto' />
+          <StatusBar style="auto" />
           <NavigationRoot />
         </View>
       </AppStateProvider>

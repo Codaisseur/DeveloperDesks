@@ -33,8 +33,8 @@ export function HomeScreen() {
       <DrawerLayout
         ref={drawer}
         drawerWidth={Dimensions.get("window").width - 100}
-        drawerPosition='left'
-        drawerType='slide'
+        drawerPosition="left"
+        drawerType="slide"
         renderNavigationView={() => <NavDrawerContents />}
       >
         <View
