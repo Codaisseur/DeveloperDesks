@@ -31,7 +31,7 @@ export function NavDrawerContents() {
             &amp; comments!
           </Text>
           <Button
-            text='Log in or register'
+            text="Log in or register"
             onPress={() => {
               navigaton.navigate("Login");
             }}
