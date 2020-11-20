@@ -35,8 +35,7 @@
     "react-native-web": "~0.13.12",
     "react-query": "^2.23.0",
     "react-redux": "^7.2.1",
-    "redux": "^4.0.5",
-    "sort-by-distance": "^1.1.0"
+    "redux": "^4.0.5"
   },
   "devDependencies": {
     "@types/react": "~16.9.35",
