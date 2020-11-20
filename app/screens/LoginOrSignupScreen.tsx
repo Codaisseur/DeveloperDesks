@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSetAppState } from "../lib/appstate";
@@ -79,7 +81,7 @@ export function LoginOrSignupScreen() {
         ]}
       >
         <View style={{ flex: 1 }} />
-        <ActivityIndicator size='large' color={theme.colors.orange} />
+        <ActivityIndicator size="large" color={theme.colors.orange} />
         <View style={{ flex: 1.6 }} />
       </View>
     );
@@ -88,60 +90,64 @@ export function LoginOrSignupScreen() {
   return (
     <ScrollView style={[styles.screen, { paddingTop: insets.top + 16 }]}>
       <Text style={styles.headerText}>Login</Text>
-      <TextInput
-        style={styles.formField}
-        onChangeText={text => changeLogin("email", text)}
-        placeholder='Email'
-        autoCapitalize={"none"}
-        value={loginState.email}
-      />
-      <TextInput
-        style={styles.formField}
-        onChangeText={text => changeLogin("password", text)}
-        placeholder='Password'
-        secureTextEntry
-        autoCapitalize={"none"}
-        value={loginState.password}
-      />
-      <Button
-        style={styles.button}
-        text={"Login"}
-        onPress={onLoginPress}
-        disabled={!loginState.email || !loginState.password}
-      />
-      <View style={{ alignItems: "center" }}>
-        <Text style={styles.separatorText}>----- or ------</Text>
-      </View>
-      <Text style={styles.headerText}>Sign up</Text>
-      <TextInput
-        style={styles.formField}
-        placeholder="Developer's Name"
-        onChangeText={t => changeSignUp("name", t)}
-        value={signupState.name}
-      />
-      <TextInput
-        style={styles.formField}
-        placeholder='Email'
-        autoCapitalize={"none"}
-        onChangeText={t => changeSignUp("email", t)}
-        value={signupState.email}
-      />
-      <TextInput
-        style={styles.formField}
-        placeholder='Password'
-        autoCapitalize={"none"}
-        secureTextEntry
-        onChangeText={t => changeSignUp("password", t)}
-        value={signupState.password}
-      />
-      <Button
-        style={styles.button}
-        onPress={onSignupPress}
-        text={"Sign up"}
-        disabled={
-          !signupState.email || !signupState.password || !signupState.name
-        }
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "position" : "height"}
+      >
+        <TextInput
+          style={styles.formField}
+          onChangeText={(text) => changeLogin("email", text)}
+          placeholder="Email"
+          autoCapitalize={"none"}
+          value={loginState.email}
+        />
+        <TextInput
+          style={styles.formField}
+          onChangeText={(text) => changeLogin("password", text)}
+          placeholder="Password"
+          secureTextEntry
+          autoCapitalize={"none"}
+          value={loginState.password}
+        />
+        <Button
+          style={styles.button}
+          text={"Login"}
+          onPress={onLoginPress}
+          disabled={!loginState.email || !loginState.password}
+        />
+        <View style={{ alignItems: "center" }}>
+          <Text style={styles.separatorText}>----- or ------</Text>
+        </View>
+        <Text style={styles.headerText}>Sign up</Text>
+        <TextInput
+          style={styles.formField}
+          placeholder="Developer's Name"
+          onChangeText={(t) => changeSignUp("name", t)}
+          value={signupState.name}
+        />
+        <TextInput
+          style={styles.formField}
+          placeholder="Email"
+          autoCapitalize={"none"}
+          onChangeText={(t) => changeSignUp("email", t)}
+          value={signupState.email}
+        />
+        <TextInput
+          style={styles.formField}
+          placeholder="Password"
+          autoCapitalize={"none"}
+          secureTextEntry
+          onChangeText={(t) => changeSignUp("password", t)}
+          value={signupState.password}
+        />
+        <Button
+          style={styles.button}
+          onPress={onSignupPress}
+          text={"Sign up"}
+          disabled={
+            !signupState.email || !signupState.password || !signupState.name
+          }
+        />
+      </KeyboardAvoidingView>
     </ScrollView>
   );
 }
