@@ -1,5 +1,9 @@
 const { Router } = require("express");
-const { desk: Desk, developer: Developer } = require("../models");
+const {
+  desk: Desk,
+  developer: Developer,
+  comment: Comment,
+} = require("../models");
 const authMiddleware = require("../auth/middleware");
 
 const router = Router();
@@ -11,6 +15,15 @@ router.get("/", async (req, res, next) => {
     });
 
     res.json({ total: desks.count, results: desks.rows });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.get("/comments", async (req, res, next) => {
+  try {
+    const comments = await Comment.findAll();
+    res.json(comments);
   } catch (e) {
     next(e);
   }
