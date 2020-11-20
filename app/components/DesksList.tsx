@@ -15,9 +15,13 @@ import { useNavigation } from "@react-navigation/native";
 
 import { fetchDesksList, DesksListResult, DeskResult } from "app/lib/api";
 import { Pill } from "app/ui";
+import { getDistance } from "geolib";
+import * as Location from "expo-location";
+import * as Permissions from "expo-permissions";
 
 export function DesksList() {
   const [filter, setFilter] = useState(0);
+  const [myLocation, setMyLocation] = useState({});
 
   const {
     resolvedData: list,
@@ -36,32 +40,65 @@ export function DesksList() {
     Alert.alert(`${error}`);
   }
 
-  let sortedList = list ? [...list.results ] : undefined;
-  if (filter === 0) {
-    sortedList?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  let sortedList = list ? [...list.results] : undefined;
+  async function getLocationAsync() {
+    // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
+    try {
+      const { status, permissions } = await Permissions.askAsync(
+        Permissions.LOCATION
+      );
+      if (status === "granted") {
+        const currentPosition = await Location.getCurrentPositionAsync({
+          enableHighAccuracy: true,
+        });
+        const { latitude, longitude } = currentPosition.coords;
+        setMyLocation({ latitude: latitude, longitude: longitude });
+      } else {
+        throw new Error("Location permission not granted");
+      }
+    } catch (e) {
+      setMyLocation({ error: e });
+    }
   }
-  
+
+  if (filter === 0) {
+    sortedList?.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } else if (filter === 2) {
+    const statusOfLocationPermission = getLocationAsync();
+    if (!statusOfLocationPermission.error)
+      sortedList?.sort((a, b) => {
+        const aLocation = { latitude: a.latitude, longitude: a.longitude };
+        const bLocation = { latitude: b.latitude, longitude: b.longitude };
+        return (
+          getDistance(myLocation, aLocation) -
+          getDistance(myLocation, bLocation)
+        );
+      });
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.filters}>
         <View style={{ marginRight: 8 }}>
           <Pill
-            text='Newest'
+            text="Newest"
             selected={filter === 0}
             onPress={() => setFilter(0)}
           />
         </View>
         <View style={{ marginRight: 8 }}>
           <Pill
-            text='Trending'
+            text="Trending"
             selected={filter === 1}
             onPress={() => setFilter(1)}
           />
         </View>
         <View style={{ marginRight: 8 }}>
           <Pill
-            text='Near me'
+            text="Near me"
             selected={filter === 2}
             onPress={() => setFilter(2)}
           />
@@ -72,7 +109,7 @@ export function DesksList() {
           <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
         data={sortedList}
-        keyExtractor={desk => `${desk.id}`}
+        keyExtractor={(desk) => `${desk.id}`}
         renderItem={({ item: desk }) => <DeskItem desk={desk} />}
       />
     </View>
