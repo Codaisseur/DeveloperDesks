@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, LogBox } from "react-native";
+import { StyleSheet, View, LogBox, Alert } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import {
   useFonts,
@@ -25,7 +25,7 @@ export default function App() {
     <ApiQueryConfigProvider>
       <AppStateProvider>
         <View style={styles.container}>
-          <StatusBar style='auto' />
+          <StatusBar style="auto" />
           <NavigationRoot />
         </View>
       </AppStateProvider>
