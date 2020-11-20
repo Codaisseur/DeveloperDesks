@@ -76,12 +76,6 @@ export function DesksList() {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   } else if (filter === 2 && location) {
-    /* 
-    sort by location nearest to me
-    for every desk you need the distance, then sort by distance and give back sorted array
-    object.latitude
-    object.longitude
-    */
     sortedList?.sort(
       (a, b) =>
         getDistance(
@@ -101,13 +95,7 @@ export function DesksList() {
     );
     console.log("sorted list is now ", sortedList);
   }
-  // console.log("what is sortedList", sortedList);
-  // const distance = getDistance(
-  //   { latitude: 49.3880614, longitude: 3.823527 },
-  //   { latitude: 50.3880614, longitude: 4.023527 }
-  // );
 
-  // console.log("what is feedback getDistance", distance);
   console.log("what is filter", filter);
 
   return (
