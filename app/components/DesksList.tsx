@@ -83,7 +83,7 @@ export function DesksList() {
   }
   //some if logic for geo location
   if (filter === 2) {
-    sortedList?.sort((a, b) => b.distance - b.distance);
+    // sortedList?.sort((a, b) => b.distance - b.distance);
   }
   // console.log("THIS IS SORTED", sortedList);
 

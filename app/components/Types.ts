@@ -10,7 +10,7 @@ export type DeveloperCard = {
   developerId: number;
   latitude: number;
   longitude: number;
-  title: string | null;
+  title: string;
   updatedAt: string;
   uri: string;
 };

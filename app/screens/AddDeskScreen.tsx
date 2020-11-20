@@ -15,17 +15,42 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
 import { useNavigation } from "@react-navigation/native";
-
+import askAsync from "expo-permissions";
+import * as Permissions from "expo-permissions";
+import Location, { getCurrentPositionAsync } from "expo-location";
 import { useAsyncCallback } from "app/lib/useAsyncCallback";
 import { HugeButton, Button, CameraIcon, GalleryIcon, theme } from "app/ui";
 import { postDesk } from "../lib/api";
 import { useAppState } from "app/lib/appstate";
+import { UserLocation } from "app/components/Types";
 
 export function AddDeskScreen() {
   const [image, setImage] = useState<ImageInfo>();
   const [title, setTitle] = useState("");
   const { auth } = useAppState();
   const navigation = useNavigation();
+  const [location, set_location] = useState<UserLocation>({
+    latitude: 0,
+    longitude: 0,
+  });
+
+  useEffect(() => {
+    (async () => {
+      const response = await Permissions.askAsync(Permissions.LOCATION);
+      console.log(response);
+      const status = response.status;
+      if (status !== "granted") {
+        console.log("permission not granted");
+        Alert.alert("permission not granted");
+      }
+      const userLocation = await getCurrentPositionAsync();
+      console.log(userLocation);
+      set_location({
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+      });
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -85,7 +110,13 @@ export function AddDeskScreen() {
       }
     );
     const { url } = await res.json();
-    const response = await postDesk(title, url, auth.token);
+    const response = await postDesk(
+      title,
+      url,
+      auth.token,
+      location.latitude,
+      location.longitude
+    );
     if (response.status === "success") {
       Alert.alert("Success", "Thank you for sharing your desk! :D", [
         { text: "Home", onPress: () => navigation.navigate("Home") },
