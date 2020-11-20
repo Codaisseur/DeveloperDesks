@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Image,
@@ -22,6 +22,7 @@ import * as Permissions from "expo-permissions";
 export function DesksList() {
   const [filter, setFilter] = useState(0);
   const [myLocation, setMyLocation] = useState({});
+  const [sortedList, setSortedList] = useState<any>([]);
 
   const {
     resolvedData: list,
@@ -40,7 +41,6 @@ export function DesksList() {
     Alert.alert(`${error}`);
   }
 
-  let sortedList = list ? [...list.results] : undefined;
   async function getLocationAsync() {
     // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
     try {
@@ -60,24 +60,29 @@ export function DesksList() {
       setMyLocation({ error: e });
     }
   }
-
-  if (filter === 0) {
-    sortedList?.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  } else if (filter === 2) {
-    const statusOfLocationPermission = getLocationAsync();
-    if (!statusOfLocationPermission.error)
-      sortedList?.sort((a, b) => {
-        const aLocation = { latitude: a.latitude, longitude: a.longitude };
-        const bLocation = { latitude: b.latitude, longitude: b.longitude };
-        return (
-          getDistance(myLocation, aLocation) -
-          getDistance(myLocation, bLocation)
+  useEffect(() => {
+    if (filter === 0) {
+      setSortedList(
+        [...list.results]?.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      );
+    } else if (filter === 2) {
+      getLocationAsync();
+      if (myLocation.latitude)
+        setSortedList(
+          [...list.results]?.sort((a, b) => {
+            const aLocation = { latitude: a.latitude, longitude: a.longitude };
+            const bLocation = { latitude: b.latitude, longitude: b.longitude };
+            return (
+              getDistance(myLocation, aLocation) -
+              getDistance(myLocation, bLocation)
+            );
+          })
         );
-      });
-  }
+    }
+  }, [filter]);
 
   return (
     <View style={{ flex: 1 }}>
