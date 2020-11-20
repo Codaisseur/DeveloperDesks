@@ -27,7 +27,7 @@ export function DesksList() {
     longitude: 0,
   });
 
-  const sortList = (array: DeskResult[]) => {
+  const addDistanceToDeveloper = (array: DeskResult[]) => {
     const newArray = array.map((d) => {
       const distance = getDistance(
         { latitude: d.latitude, longitude: d.longitude },
@@ -73,7 +73,7 @@ export function DesksList() {
   }
 
   let newList = list ? [...list.results] : [];
-  let sortedList = sortList(newList);
+  let sortedList = addDistanceToDeveloper(newList);
 
   if (filter === 0) {
     sortedList?.sort(
