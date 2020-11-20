@@ -20,12 +20,17 @@ import { useAsyncCallback } from "app/lib/useAsyncCallback";
 import { HugeButton, Button, CameraIcon, GalleryIcon, theme } from "app/ui";
 import { postDesk } from "../lib/api";
 import { useAppState } from "app/lib/appstate";
+import * as Location from "expo-location";
 
 export function AddDeskScreen() {
   const [image, setImage] = useState<ImageInfo>();
   const [title, setTitle] = useState("");
   const { auth } = useAppState();
   const navigation = useNavigation();
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+  console.log("LOCATION", location);
 
   useEffect(() => {
     (async () => {
@@ -35,6 +40,8 @@ export function AddDeskScreen() {
           "Sorry, we need camera roll permissions to make this work!"
         );
       }
+      const userLocation = await Location.getCurrentPositionAsync({});
+      setLocation(userLocation);
     })();
   }, []);
 
@@ -63,7 +70,7 @@ export function AddDeskScreen() {
   }, [setImage]);
 
   const [startUpload, { status, error }] = useAsyncCallback(async () => {
-    if (!image || !auth) return;
+    if (!image || !auth || !location) return;
 
     const body = new FormData();
     body.append("upload_preset", "k8vaf22u");
@@ -85,7 +92,14 @@ export function AddDeskScreen() {
       }
     );
     const { url } = await res.json();
-    const response = await postDesk(title, url, auth.token);
+    const { latitude, longitude } = location.coords;
+    const response = await postDesk(
+      title,
+      url,
+      auth.token,
+      latitude,
+      longitude
+    );
     if (response.status === "success") {
       Alert.alert("Success", "Thank you for sharing your desk! :D", [
         { text: "Home", onPress: () => navigation.navigate("Home") },

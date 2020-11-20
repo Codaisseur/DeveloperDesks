@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Image,
@@ -24,6 +24,7 @@ import { getDistance } from "geolib";
 export function DesksList() {
   const [filter, setFilter] = useState(0);
   const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
+  // console.log("LOCATION", location);
 
   const {
     resolvedData: list,
@@ -38,23 +39,23 @@ export function DesksList() {
     },
   });
 
-  const getLocation = async (f: number) => {
-    // console.log("WHAT IS F", f);
-    setFilter(f);
-    const { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== "granted") {
-      console.log("Permission not granted");
-      Alert.alert("Permission not granted, location not available");
-    }
-    const userLocation = await Location.getCurrentPositionAsync();
-    // console.log("userLocation", userLocation);
+  useEffect(() => {
+    const getLocation = async () => {
+      const { status } = await Permissions.askAsync(Permissions.LOCATION);
 
-    setLocation({
-      latitude: userLocation.coords.latitude,
-      longitude: userLocation.coords.longitude,
-    });
-    // console.log("location", location);
-  };
+      if (status !== "granted") {
+        console.log("Permission not granted");
+        Alert.alert("Permission not granted, location not available");
+      }
+      const userLocation = await Location.getCurrentPositionAsync();
+
+      setLocation({
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+      });
+    };
+    getLocation();
+  }, []);
 
   const addDistanceToDeveloper = (deskList: DeskResult[]) => {
     const desksWithDistance = deskList.map((d) => {
@@ -64,7 +65,7 @@ export function DesksList() {
       );
       return { ...d, distance };
     });
-    // console.log("desksWithDistance", desksWithDistance);
+
     return desksWithDistance;
   };
 
@@ -72,12 +73,10 @@ export function DesksList() {
     Alert.alert(`${error}`);
   }
 
-  // const deskList = list ? [...list.results] : [];
   const deskListWithDistance = list
     ? addDistanceToDeveloper([...list.results])
-    : undefined;
+    : [];
   let sortedList = deskListWithDistance;
-  // let sortedList = list ? [...list.results] : undefined;
 
   if (filter === 0) {
     sortedList?.sort(
@@ -87,7 +86,6 @@ export function DesksList() {
   }
   if (filter === 2) {
     sortedList?.sort((a, b) => a.distance - b.distance);
-    // console.log("THIS IS SORTED", sortedList);
   }
 
   return (
@@ -111,7 +109,7 @@ export function DesksList() {
           <Pill
             text="Near me"
             selected={filter === 2}
-            onPress={() => getLocation(2)}
+            onPress={() => setFilter(2)}
           />
         </View>
       </View>
