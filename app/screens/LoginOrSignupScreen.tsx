@@ -47,7 +47,11 @@ export function LoginOrSignupScreen() {
       const { name, email, password } = signupState;
       const data = await signup(name, email, password);
       setState({
-        auth: { email: data.email, name: data.name, token: data.token },
+        auth: {
+          email: data.email,
+          name: data.name,
+          token: data.token,
+        },
       });
       navigation.navigate("Home");
     } catch (e) {
@@ -62,7 +66,11 @@ export function LoginOrSignupScreen() {
       const { email, password } = loginState;
       const data = await login(email, password);
       setState({
-        auth: { email: data.email, name: data.name, token: data.token },
+        auth: {
+          email: data.email,
+          name: data.name,
+          token: data.token,
+        },
       });
       navigation.navigate("Home");
     } catch (e) {

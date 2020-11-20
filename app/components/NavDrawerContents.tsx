@@ -1,16 +1,27 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
 import { theme, Button } from "app/ui";
 import { DeskSvg } from "app/ui/DeskSvg";
-import { useAppState } from "app/lib/appstate";
+import { useAppState, useSetAppState } from "app/lib/appstate";
 
 export function NavDrawerContents() {
   const insets = useSafeAreaInsets();
   const navigaton = useNavigation();
   const { auth } = useAppState();
+  const setState = useSetAppState();
+  const navigation = useNavigation();
+
+  const onLogoutPress = async () => {
+    try {
+      setState({ auth: null });
+      navigation.navigate("Home");
+    } catch (e) {
+      Alert.alert("Oh no! An error occurred...");
+    }
+  };
 
   return (
     <View
@@ -22,6 +33,7 @@ export function NavDrawerContents() {
       {auth ? (
         <>
           <Text style={styles.loggedInText}>Welcome {auth.name}!</Text>
+          <Button text="Log out" onPress={onLogoutPress} />
         </>
       ) : (
         <>

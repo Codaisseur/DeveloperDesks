@@ -16,8 +16,14 @@ import { useNavigation } from "@react-navigation/native";
 import { fetchDesksList, DesksListResult, DeskResult } from "app/lib/api";
 import { Pill } from "app/ui";
 
+import * as Location from "expo-location";
+import * as Permissions from "expo-permissions";
+import sortByDistance from "sort-by-distance";
+import { getDistance } from "geolib";
+
 export function DesksList() {
   const [filter, setFilter] = useState(0);
+  const [location, setLocation] = useState({ latitude: 0, longitude: 0 });
 
   const {
     resolvedData: list,
@@ -32,38 +38,80 @@ export function DesksList() {
     },
   });
 
+  const getLocation = async (f: number) => {
+    // console.log("WHAT IS F", f);
+    setFilter(f);
+    const { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== "granted") {
+      console.log("Permission not granted");
+      Alert.alert("Permission not granted, location not available");
+    }
+    const userLocation = await Location.getCurrentPositionAsync();
+    // console.log("userLocation", userLocation);
+
+    setLocation({
+      latitude: userLocation.coords.latitude,
+      longitude: userLocation.coords.longitude,
+    });
+    // console.log("location", location);
+  };
+
+  const addDistanceToDeveloper = (deskList: DeskResult[]) => {
+    const desksWithDistance = deskList.map((d) => {
+      const distance = getDistance(
+        { latitude: d.latitude, longitude: d.longitude },
+        location
+      );
+      return { ...d, distance };
+    });
+    // console.log("desksWithDistance", desksWithDistance);
+    return desksWithDistance;
+  };
+
   if (error) {
     Alert.alert(`${error}`);
   }
 
-  let sortedList = list ? [...list.results ] : undefined;
+  // const deskList = list ? [...list.results] : [];
+  const deskListWithDistance = list
+    ? addDistanceToDeveloper([...list.results])
+    : undefined;
+  let sortedList = deskListWithDistance;
+  // let sortedList = list ? [...list.results] : undefined;
+
   if (filter === 0) {
-    sortedList?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    sortedList?.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
-  
+  if (filter === 2) {
+    sortedList?.sort((a, b) => a.distance - b.distance);
+    // console.log("THIS IS SORTED", sortedList);
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.filters}>
         <View style={{ marginRight: 8 }}>
           <Pill
-            text='Newest'
+            text="Newest"
             selected={filter === 0}
             onPress={() => setFilter(0)}
           />
         </View>
         <View style={{ marginRight: 8 }}>
           <Pill
-            text='Trending'
+            text="Trending"
             selected={filter === 1}
             onPress={() => setFilter(1)}
           />
         </View>
         <View style={{ marginRight: 8 }}>
           <Pill
-            text='Near me'
+            text="Near me"
             selected={filter === 2}
-            onPress={() => setFilter(2)}
+            onPress={() => getLocation(2)}
           />
         </View>
       </View>
@@ -72,7 +120,7 @@ export function DesksList() {
           <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
         data={sortedList}
-        keyExtractor={desk => `${desk.id}`}
+        keyExtractor={(desk) => `${desk.id}`}
         renderItem={({ item: desk }) => <DeskItem desk={desk} />}
       />
     </View>
@@ -102,7 +150,7 @@ function DeskItem({ desk }: { desk: DeskResult }) {
             }}
           >
             {desk.developer.name}
-          </Text>{" "}
+          </Text>
           (<Text>{desk.developer.email}</Text>)
         </Text>
       </View>
