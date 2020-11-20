@@ -23,7 +23,18 @@ import { LocationObject } from "expo-location";
 export function DesksList() {
   const [filter, setFilter] = useState(0);
 
-  const [location, setLocation] = useState<LocationObject | null>(null);
+  const [location, setLocation] = useState<LocationObject>({
+    coords: {
+      accuracy: 0,
+      altitude: 0,
+      altitudeAccuracy: 0,
+      heading: -1,
+      latitude: 0,
+      longitude: 0,
+      speed: 0,
+    },
+    timestamp: 0,
+  });
   const [errorMsg, setErrorMsg] = useState<
     "Permission to access location was denied" | null
   >(null);
@@ -95,7 +106,6 @@ export function DesksList() {
     );
     console.log("sorted list is now ", sortedList);
   }
-
   console.log("what is filter", filter);
 
   return (
