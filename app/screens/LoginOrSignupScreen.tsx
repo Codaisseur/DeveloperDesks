@@ -89,10 +89,11 @@ export function LoginOrSignupScreen() {
 
   return (
     <ScrollView style={[styles.screen, { paddingTop: insets.top + 16 }]}>
-      <Text style={styles.headerText}>Login</Text>
       <KeyboardAvoidingView
         behavior={Platform.OS == "ios" ? "position" : "height"}
+        style={{ flex: 1 }}
       >
+        <Text style={styles.headerText}>Login</Text>
         <TextInput
           style={styles.formField}
           onChangeText={(text) => changeLogin("email", text)}
@@ -117,7 +118,6 @@ export function LoginOrSignupScreen() {
         <View style={{ alignItems: "center" }}>
           <Text style={styles.separatorText}>----- or ------</Text>
         </View>
-        <Text style={styles.headerText}>Sign up</Text>
         <TextInput
           style={styles.formField}
           placeholder="Developer's Name"
