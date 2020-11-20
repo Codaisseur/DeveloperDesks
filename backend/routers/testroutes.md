@@ -1,0 +1,1 @@
+http -v POST :4001/desks/2 Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImlhdCI6MTYwNTg4OTk3MCwiZXhwIjoxNjA1ODk3MTcwfQ.4CIbGTV0ro049E3zpxpK3Q6SkReCc5hkmLI_AcmD4hw" title="this is great" content="this is even better"

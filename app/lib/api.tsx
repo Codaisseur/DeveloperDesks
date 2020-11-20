@@ -16,6 +16,15 @@ export type DeskResult = {
     name: string;
     email: string;
   };
+  comments: CommentResult[];
+};
+
+export type CommentResult = {
+  id: number;
+  title: string;
+  content: string;
+  developerId: number;
+  deskId: number;
 };
 
 export type DesksListResult = {
@@ -29,6 +38,10 @@ export type SignupResult = {
   token: string;
 };
 export type PostDeskResult = {
+  status: string;
+};
+
+export type PostCommentResult = {
   status: string;
 };
 
@@ -59,6 +72,23 @@ export async function postDesk(
   const response = await axios.post<PostDeskResult>(
     "/desks",
     { title, uri, latitude, longitude },
+    { headers: { authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+}
+
+export async function postComment(
+  id: number,
+  title: string,
+  content: string,
+  token: string
+): Promise<PostCommentResult> {
+  if (!token) {
+    throw Error("Not authorized");
+  }
+  const response = await axios.post<PostDeskResult>(
+    `/desks/${id}`,
+    { title, content },
     { headers: { authorization: `Bearer ${token}` } }
   );
   return response.data;

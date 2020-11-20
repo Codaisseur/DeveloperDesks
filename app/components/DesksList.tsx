@@ -19,6 +19,7 @@ import { UserLocation, DeveloperCard } from "./Types";
 import { fetchDesksList, DesksListResult, DeskResult } from "app/lib/api";
 import { Pill } from "app/ui";
 import { getDistance } from "geolib";
+import Comments from "../components/Comments";
 
 export function DesksList() {
   const [filter, setFilter] = useState(0);
@@ -40,7 +41,6 @@ export function DesksList() {
 
   const getLocation = async () => {
     const response = await Permissions.askAsync(Permissions.LOCATION);
-    console.log(response);
     const status = response.status;
     if (status !== "granted") {
       console.log("permission not granted");
@@ -48,7 +48,6 @@ export function DesksList() {
     }
 
     const userLocation = await getCurrentPositionAsync();
-    console.log(userLocation);
     set_location({
       latitude: userLocation.coords.latitude,
       longitude: userLocation.coords.longitude,
@@ -83,9 +82,8 @@ export function DesksList() {
   }
   //some if logic for geo location
   if (filter === 2) {
-    // sortedList?.sort((a, b) => b.distance - b.distance);
+    sortedList?.sort((a, b) => a.distance - b.distance);
   }
-  // console.log("THIS IS SORTED", sortedList);
 
   return (
     <View style={{ flex: 1 }}>

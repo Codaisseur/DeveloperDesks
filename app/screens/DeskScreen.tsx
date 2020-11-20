@@ -6,17 +6,27 @@ import {
   StyleSheet,
   ActivityIndicator,
   Dimensions,
+  Button,
+  RefreshControl,
+  FlatList,
+  Pressable,
 } from "react-native";
 import { useQuery } from "react-query";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { DeskResult, fetchDesk } from "app/lib/api";
+import { DeskResult, fetchDesk, CommentResult, postComment } from "app/lib/api";
 import { theme } from "app/ui";
+import Comments from "app/components/Comments";
+import { TextInput } from "react-native-gesture-handler";
+import { useAppState } from "app/lib/appstate";
 
 export function DeskScreen() {
+  const { auth } = useAppState();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { params = {} } = useRoute();
+  // const [text, set_text] = useState();
 
   const deskId = +(params as any).deskId;
 
@@ -31,7 +41,7 @@ export function DeskScreen() {
     return (
       <View style={styles.screen}>
         <View style={{ flex: 1 }} />
-        <ActivityIndicator size='large' color={theme.colors.orange} />
+        <ActivityIndicator size="large" color={theme.colors.orange} />
         <View style={{ flex: 1.6 }} />
       </View>
     );
@@ -45,6 +55,13 @@ export function DeskScreen() {
   const { width } = Dimensions.get("window");
   const height = width * (2 / 3);
 
+  const [text, onChangeText] = React.useState("");
+  const [content, onChangeComment] = React.useState("");
+
+  console.log("this is title", text);
+  console.log("this is content", content);
+  console.log(auth);
+
   return (
     <View style={[styles.screen, { paddingTop: insets.top + 16 }]}>
       <Text style={styles.headerText}>{title}</Text>
@@ -52,6 +69,32 @@ export function DeskScreen() {
         source={{ uri: desk.uri }}
         style={{ width, height, marginHorizontal: -16 }}
       />
+      <FlatList
+        data={desk.comments}
+        keyExtractor={(comment) => `${comment.id}`}
+        renderItem={({ item: comment }) => <Comments comment={comment} />}
+      />
+      <TextInput
+        style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
+        placeholder="title"
+        onChangeText={(text) => onChangeText(text)}
+        value={text}
+      />
+      <TextInput
+        style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
+        placeholder="comment"
+        onChangeText={(text) => onChangeComment(text)}
+        value={content}
+      />
+      <Button
+        title="Add comment"
+        onPress={() => {
+          postComment(desk.id, title, content, auth.token);
+          onChangeText("");
+          onChangeComment("");
+        }}
+      />
+      <Button title="go back" onPress={() => navigation.goBack()} />
     </View>
   );
 }

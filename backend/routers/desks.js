@@ -1,5 +1,9 @@
 const { Router } = require("express");
-const { desk: Desk, developer: Developer } = require("../models");
+const {
+  desk: Desk,
+  developer: Developer,
+  comment: Comment,
+} = require("../models");
 const authMiddleware = require("../auth/middleware");
 
 const router = Router();
@@ -20,7 +24,13 @@ router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     const desk = await Desk.findByPk(id, {
-      include: [{ model: Developer, attributes: ["id", "name", "email"] }],
+      include: [
+        { model: Developer, attributes: ["id", "name", "email"] },
+        {
+          model: Comment,
+          attributes: ["id", "title", "content", "developerId"],
+        },
+      ],
     });
     if (!desk) {
       return res.status(404).send("Desk not found");
@@ -47,6 +57,28 @@ router.post("/", authMiddleware, async (req, res, next) => {
       developerId: user.id,
       latitude,
       longitude,
+    });
+    res.send({ status: "success" });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post("/:id", authMiddleware, async (req, res, next) => {
+  try {
+    const {
+      params: { id },
+      user,
+      body: { title, content },
+    } = req;
+    if (!content || !title) {
+      return res.status(400).send("Missing parameters");
+    }
+    await Comment.create({
+      content,
+      title,
+      developerId: user.id,
+      deskId: id,
     });
     res.send({ status: "success" });
   } catch (e) {
