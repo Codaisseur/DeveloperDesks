@@ -72,7 +72,7 @@ export function DesksList() {
     Alert.alert(`${error}`);
   }
 
-  let newList = list ? [...list.results] : undefined;
+  let newList = list ? [...list.results] : [];
   let sortedList = sortList(newList);
 
   if (filter === 0) {
