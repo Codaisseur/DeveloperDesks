@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -12,12 +12,31 @@ import {
 } from "react-native";
 import { usePaginatedQuery } from "react-query";
 import { useNavigation } from "@react-navigation/native";
+import * as Permissions from "expo-permissions";
+import * as Location from "expo-location";
+import { getDistance } from "geolib";
 
 import { fetchDesksList, DesksListResult, DeskResult } from "app/lib/api";
 import { Pill } from "app/ui";
 
 export function DesksList() {
   const [filter, setFilter] = useState(0);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+  const [permission] = Permissions.usePermissions(Permissions.LOCATION, {
+    ask: true,
+  });
+
+  useEffect(() => {
+    const getLocation = async () => {
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    };
+    getLocation();
+  }, []);
+
+  console.log({ location });
 
   const {
     resolvedData: list,
@@ -36,11 +55,36 @@ export function DesksList() {
     Alert.alert(`${error}`);
   }
 
-  let sortedList = list ? [...list.results ] : undefined;
-  if (filter === 0) {
-    sortedList?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  let sortedList = list ? [...list?.results] : undefined;
+  if (filter === 2 && location && sortedList) {
+    const { latitude: myLatitude, longitude: myLongitude } = location.coords;
+    sortedList.sort((a, b) => {
+      const distanceToA = getDistance(
+        { latitude: a.latitude, longitude: a.longitude },
+        {
+          latitude: myLatitude,
+          longitude: myLongitude,
+        },
+        1
+      );
+      const distanceToB = getDistance(
+        { latitude: b.latitude, longitude: b.longitude },
+        {
+          latitude: myLatitude,
+          longitude: myLongitude,
+        },
+        1
+      );
+      return distanceToA - distanceToB;
+    });
   }
-  
+
+  if (filter === 0) {
+    sortedList?.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
