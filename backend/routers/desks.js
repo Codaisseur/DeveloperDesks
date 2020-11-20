@@ -29,6 +29,24 @@ router.get("/comments", async (req, res, next) => {
   }
 });
 
+router.post("/comments", authMiddleware, async (req, res, next) => {
+  try {
+    const {
+      user,
+      body: { title, content, deskId },
+    } = req;
+    await Comment.create({
+      title,
+      content,
+      deskId,
+      developerId: user.id,
+    });
+    res.send({ status: "success" });
+  } catch (e) {
+    next(e);
+  }
+});
+
 router.get("/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
