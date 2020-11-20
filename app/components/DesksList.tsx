@@ -27,7 +27,7 @@ export function DesksList() {
     longitude: 0,
   });
 
-  const sortList = (array: DeveloperCard[]) => {
+  const sortList = (array: DeskResult[]) => {
     const newArray = array.map((d) => {
       const distance = getDistance(
         { latitude: d.latitude, longitude: d.longitude },
