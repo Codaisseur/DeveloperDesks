@@ -36,12 +36,18 @@ router.post("/", authMiddleware, async (req, res, next) => {
   try {
     const {
       user,
-      body: { uri, title },
+      body: { uri, title, longitude, latitude },
     } = req;
     if (!uri || !title) {
       return res.status(400).send("Missing parameters");
     }
-    await Desk.create({ uri, title, developerId: user.id });
+    await Desk.create({
+      uri,
+      title,
+      developerId: user.id,
+      longitude,
+      latitude,
+    });
     res.send({ status: "success" });
   } catch (e) {
     next(e);
